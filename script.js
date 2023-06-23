@@ -1,43 +1,82 @@
-let l = document.getElementById("loan");
-let y = document.getElementById("years");
-let i = document.getElementById("interest-rate");
+let lo = document.getElementById("loan");
+let ye = document.getElementById("years");
+let ir = document.getElementById("interest-rate");
 let calculateBtn = document.getElementById("calculate");
-let resultDiv;
-let createPaymentsP;
+let resultDiv = document.getElementById("result-div");
+let createPaymentParagraph;
+let total;
+
+let num = (100000 / 10) + ((100000 - (15000 - (100000 * 5 / 100))) * 5 / 100);
+
 
 calculateBtn.addEventListener("click", function() {
 
-    let eachMonth = 0;
+    let amountOfYears = 1;
+    let NumberOfPaidMonths = 0;
     let lastMonth = 0;
     let toPayThisMonth = 0;
-    let all = 0;
-    loan = parseInt(l.value);
-    years = parseInt(y.value);
-    interestRate = parseInt(i.value);
+    let paidMoney = 0;
+    loan = parseInt(lo.value);
+    years = parseInt(ye.value);
+    interestRate = ir.value;
 
-
-    if (document.body.childElementCount === 27) {
-        document.body.removeChild(resultDiv);
+    if (resultDiv.innerHTML.length > 0) {
+        resultDiv.innerHTML = "";
     }
 
-    resultDiv = document.createElement("div");
-    document.body.appendChild(resultDiv);
-    while (toPayThisMonth >= 0) {
-        all += toPayThisMonth;
-        // toPayThisMonth = (loan - lastMonth + (interestRate * (loan - lastMonth) / 100)) / years / 12;
+    if (total) {
+        if (total.innerText.length > 0) {
+            total.innerHTML = "";
+        }
+    }
 
-        toPayThisMonth = ((loan - lastMonth) + (((loan - lastMonth) * interestRate) / 100)) / ((years * 12) - eachMonth);
+
+
+    thisYearTotalPayment = (loan / years) + (loan * interestRate / 100);
+
+
+    for (let i = 0; i < years * 12; i++) {
+
+        toPayThisMonth = thisYearTotalPayment / 12;
+
+        paidMoney += toPayThisMonth;
         lastMonth += toPayThisMonth;
 
+        NumberOfPaidMonths++;
 
-        createPaymentsP = document.createElement("p");
-        createPaymentsP.innerText = toPayThisMonth;
-        resultDiv.appendChild(createPaymentsP);
-        eachMonth++;
+        if (NumberOfPaidMonths !== 12) {
+
+            createPaymentParagraph = document.createElement("p");
+            createPaymentParagraph.innerHTML = `<p>Månad (${i + 1}), Att betala: ${toPayThisMonth.toFixed(2)}</p>`;
+            resultDiv.appendChild(createPaymentParagraph);
+
+        }
+
+
+        // Check paid Money position, and check interestRate
+
+        if (NumberOfPaidMonths === 12) {
+
+            amountOfYears++
+            
+            thisYearTotalPayment = (loan / years) + ((loan - (paidMoney - (loan * interestRate / 100))) * interestRate / 100);
+            // (100000 / 5) + ((100000 - (15000 - (100000 / 5))) / 5)
+
+
+
+            createPaymentParagraph = document.createElement("p");
+            createPaymentParagraph.innerHTML = `
+                <p>Månad (${i + 1}), Att betala: ${toPayThisMonth.toFixed(2)}</p>
+                <p>År ${amountOfYears}</p>
+            `;
+            resultDiv.appendChild(createPaymentParagraph);
+
+            NumberOfPaidMonths = 0;
+        }
+
     }
-    console.log(all)
     total = document.createElement("div");
-    total.innerText = `Your Total Payment Is: ${all}`;
+    total.innerText = `Totala beloppet att betala tillbaka blir: ${paidMoney.toFixed(2)}`;
     document.body.appendChild(total)
     
 
